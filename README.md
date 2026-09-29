@@ -1,23 +1,23 @@
 # 💗 Pre Dominiku
 
-Malá stránka s láskou pre Dominiku. Jeden súbor `index.html`, žiadna inštalácia.
+Malá pixelová stránka pre Dominiku. Jeden súbor `index.html`, žiadna inštalácia, funguje na mobile aj na počítači.
 
 ## Čo na nej je
-- **Srdiečko** – klikni naň a povie ti niečo milé.
-- **Mačacia izbička** – animované mačičky sa prechádzajú, spia a vrtia chvostíkmi.
-  Pohladkaj mačičku a pošepká ti niečo milé. Ťukni na zem → klbko 🧶, tlačidlo → rybky 🐟. Dá sa pridať ďalšia mačička.
-- **Super Dominika** – 2D skákačka ako Mario: zbieraj 💗, búchaj do **?** kociek, skáč brokoliciam na hlavu a dostaň sa k zámku 👑.
+- **Pixelové srdiečko** – klikni naň a povie ti niečo milé.
+- **Mačacia izbička** – pixelové mačičky sa prechádzajú, spia, žmurkajú a vrtia chvostíkmi.
+  Pohladkaj mačičku a pošepká ti kompliment. Ťukni na zem → klbko, tlačidlo → rybky. Dá sa pridať ďalšia mačička.
+- **Super Dominika** – 2D pixelová skákačka: zbieraj srdiečka, búchaj do **?** kociek, skáč brokoliciam na hlavu a dostaň sa k zámku 👑.
   Na mobile sú tlačidlá na obrazovke, na počítači šípky + medzerník.
-- **Otvor, keď…** – listy na smutné chvíle, na nudu, na stres, keď nemôže zaspať…
-- **Otázka na konci** – tlačidlo „Nie“ pred ňou uteká 😏 Po „Áno“ ti môže poslať správu.
+- **Origami srdiečko** – 3D animovaný návod krok za krokom (10 krokov), model sa dá prstom otáčať.
+- **Otázka na konci** – tlačidlo „NIE“ pred ňou uteká 😏 Po „ÁNO“ ti môže poslať správu.
 
 ## Prispôsobenie
 Na začiatku `<script>` v `index.html` je blok `CONFIG`:
 - `poznameSaOd` – dátum, odkedy sa poznáte (napr. `"2024-09-02"`) → zobrazí počítadlo dní
-- `podpis` – podpis pod listami
+- `podpis` – podpis v pätičke
 - `otazka` – otázka na konci stránky (predvolene „Pôjdeš so mnou na kávu? ☕“)
 
-Polia `NOTES` (čo šepkajú mačičky) a `LETTERS` môžeš ľubovoľne upraviť – najlepšie fungujú vlastné spomienky a vtipy, ktoré poznáte len vy dvaja.
+Pole `NOTES` (čo šepkajú mačičky) môžeš ľubovoľne upraviť – najlepšie fungujú vlastné spomienky a vtipy, ktoré poznáte len vy dvaja.
 
 ## Zverejnenie (GitHub Pages)
 Settings → Pages → Source: *Deploy from a branch* → vyber vetvu a priečinok `/ (root)`.
