@@ -24,4 +24,4 @@ Settings → Pages → Source: *Deploy from a branch* → vyber vetvu a priečin
 Po chvíli bude stránka na `https://<tvoj-účet>.github.io/domini/`.
 
 ## Hra na ročníkovú prácu
-V priečinku [`hra/`](hra/) je boss fight v Pygame – *Posledný strážca*. Spustenie: `pip install pygame` a `python hra/hra.py`. Viac v [`hra/README.md`](hra/README.md).
+V priečinku [`hra/`](hra/) je pixelová VHS boss-rush hra v Pygame – *Prekliate kazety* (5 levelov, 5 bossov, vylepšenia). Spustenie: `pip install pygame` a `python hra/hra.py`. Viac v [`hra/README.md`](hra/README.md).
