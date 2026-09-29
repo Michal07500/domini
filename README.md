@@ -22,3 +22,6 @@ Pole `NOTES` (čo šepkajú mačičky) môžeš ľubovoľne upraviť – najlep�
 ## Zverejnenie (GitHub Pages)
 Settings → Pages → Source: *Deploy from a branch* → vyber vetvu a priečinok `/ (root)`.
 Po chvíli bude stránka na `https://<tvoj-účet>.github.io/domini/`.
+
+## Hra na ročníkovú prácu
+V priečinku [`hra/`](hra/) je boss fight v Pygame – *Posledný strážca*. Spustenie: `pip install pygame` a `python hra/hra.py`. Viac v [`hra/README.md`](hra/README.md).
