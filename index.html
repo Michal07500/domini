@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre Dominiku 💗</title>
+<meta name="description" content="Malý kúsok internetu, ktorý patrí len Dominike.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fredoka:wght@400;500;600&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff6f8;
+    --bg-2: #ffe9ef;
+    --card: #ffffff;
+    --pink: #ff7aa2;
+    --pink-deep: #e85a88;
+    --pink-soft: #ffd3e0;
+    --peach: #ffc9a9;
+    --lav: #d9ccff;
+    --mint: #c9f0e0;
+    --ink: #5a3a48;
+    --ink-soft: #9a7384;
+    --shadow: 0 10px 30px rgba(232, 90, 136, .15);
+    --radius: 24px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Fredoka", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 10%, var(--bg-2) 0 120px, transparent 121px),
+      radial-gradient(circle at 90% 30%, #fff0e6 0 160px, transparent 161px),
+      radial-gradient(circle at 20% 80%, #f3eeff 0 140px, transparent 141px);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hand { font-family: "Caveat", cursive; }
+
+  /* floating hearts */
+  #sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .float {
+    position: absolute; bottom: -40px;
+    animation: rise linear forwards;
+    opacity: .7; user-select: none;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .7; }
+    100% { transform: translateY(-110vh) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
+  }
+  .burst {
+    position: fixed; pointer-events: none; z-index: 50;
+    animation: pop .9s ease-out forwards; font-size: 18px;
+  }
+  @keyframes pop {
+    to { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0; }
+  }
+
+  main { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 0 16px 60px; }
+  section { margin: 56px 0; }
+  h2 {
+    font-family: "Caveat", cursive; font-weight: 700;
+    font-size: clamp(34px, 7vw, 46px); color: var(--pink-deep);
+    text-align: center; margin: 0 0 6px;
+  }
+  .sub { text-align: center; color: var(--ink-soft); margin: 0 0 26px; }
+
+  /* hero */
+  .hero { min-height: 92vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 30px; }
+  .greet { color: var(--ink-soft); font-size: 18px; margin: 0; }
+  .name {
+    font-family: "Caveat", cursive; font-weight: 700;
+    font-size: clamp(72px, 20vw, 150px); line-height: .9; margin: 8px 0 4px;
+    background: linear-gradient(90deg, var(--pink-deep), #ff9a7a, #b58cff, var(--pink-deep));
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 8s ease-in-out infinite;
+  }
+  @keyframes shimmer { 50% { background-position: 100% 0; } }
+  .mascot { width: 170px; height: 170px; margin: 10px auto; cursor: pointer; animation: bob 3s ease-in-out infinite; }
+  .mascot:active { transform: scale(.94); }
+  @keyframes bob { 50% { transform: translateY(-10px); } }
+  .mascot .eye { animation: blink 4s infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  .bubble {
+    display: inline-block; background: var(--card); padding: 10px 18px; border-radius: 20px;
+    box-shadow: var(--shadow); min-height: 44px; font-size: 17px; max-width: 320px;
+    transition: transform .2s;
+  }
+  .bubble.bump { transform: scale(1.06); }
+  .counter { margin-top: 22px; font-size: 17px; color: var(--ink-soft); }
+  .counter b { color: var(--pink-deep); font-size: 26px; }
+  .scroll-hint { margin-top: 36px; color: var(--ink-soft); font-size: 14px; animation: bob 2s ease-in-out infinite; text-decoration: none; }
+
+  /* card */
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+
+  /* jar */
+  .jar-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .jar { width: 180px; cursor: pointer; transition: transform .2s; }
+  .jar:hover { transform: rotate(-3deg); }
+  .jar.shake { animation: shake .5s; }
+  @keyframes shake { 20%{transform:rotate(-8deg)} 40%{transform:rotate(7deg)} 60%{transform:rotate(-5deg)} 80%{transform:rotate(3deg)} }
+  .note {
+    font-family: "Caveat", cursive; font-size: 30px; line-height: 1.2; text-align: center;
+    background: #fffbe8; padding: 26px 24px 22px; border-radius: 6px; max-width: 460px; width: 100%;
+    box-shadow: 0 8px 20px rgba(160, 120, 40, .15); transform: rotate(-1.5deg);
+    position: relative; display: none;
+  }
+  .note::before {
+    content: ""; position: absolute; top: -12px; left: 50%; width: 90px; height: 24px; margin-left: -45px;
+    background: rgba(255, 170, 200, .6); transform: rotate(2deg);
+  }
+  .note.show { display: block; animation: unfold .6s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes unfold { from { transform: rotate(-1.5deg) scale(.3) translateY(-60px); opacity: 0; } }
+  .note small { display: block; font-family: "Fredoka", sans-serif; font-size: 13px; color: var(--ink-soft); margin-top: 12px; }
+
+  /* letters */
+  .letters { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; }
+  .env {
+    border: 0; cursor: pointer; font: inherit; color: var(--ink);
+    background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 0 0 16px; overflow: hidden; text-align: center; transition: transform .2s;
+  }
+  .env:hover { transform: translateY(-4px) rotate(-1deg); }
+  .env .flap { height: 70px; position: relative; background: var(--c, var(--pink-soft)); }
+  .env .flap::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -30px; height: 60px;
+    background: inherit; clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  .env .seal { position: relative; z-index: 2; font-size: 30px; margin-top: 4px; display: block; }
+  .env .when { font-family: "Caveat", cursive; font-size: 26px; margin-top: 8px; display: block; padding: 0 10px; }
+  .env.read .seal { opacity: .5; }
+
+  /* modal */
+  .modal {
+    position: fixed; inset: 0; z-index: 40; background: rgba(90, 58, 72, .35);
+    display: none; align-items: center; justify-content: center; padding: 16px;
+    backdrop-filter: blur(3px);
+  }
+  .modal.open { display: flex; }
+  .paper {
+    background: #fffdf7; max-width: 520px; width: 100%; max-height: 88vh; overflow: auto;
+    border-radius: 14px; padding: 30px 26px 24px; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    background-image: repeating-linear-gradient(#fffdf7 0 33px, #f3dbe3 33px 34px);
+    animation: unfold .5s cubic-bezier(.2, 1.3, .4, 1);
+  }
+  .paper h3 { font-family: "Caveat", cursive; font-size: 34px; color: var(--pink-deep); margin: 0 0 6px; }
+  .paper p { font-family: "Caveat", cursive; font-size: 25px; line-height: 34px; margin: 0 0 34px; white-space: pre-line; }
+  .paper .sign { text-align: right; margin: 0; }
+  .x {
+    position: absolute; top: 10px; right: 12px; border: 0; background: var(--pink-soft); color: var(--pink-deep);
+    width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer;
+  }
+
+  /* coupons */
+  .coupons { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+  .coupon {
+    position: relative; background: var(--c, var(--pink-soft)); border-radius: 16px; padding: 18px 18px 16px;
+    border: 2px dashed rgba(90, 58, 72, .25); display: flex; flex-direction: column; gap: 8px;
+    transition: transform .2s, filter .3s;
+  }
+  .coupon::before, .coupon::after {
+    content: ""; position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+    background: var(--bg); border-radius: 50%;
+  }
+  .coupon::before { left: -12px; } .coupon::after { right: -12px; }
+  .coupon .ic { font-size: 34px; }
+  .coupon .t { font-weight: 600; font-size: 18px; }
+  .coupon .d { font-size: 14px; color: var(--ink-soft); flex: 1; }
+  .coupon button {
+    align-self: flex-start; border: 0; cursor: pointer; font: inherit; font-weight: 500;
+    background: var(--card); color: var(--pink-deep); padding: 8px 16px; border-radius: 999px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.08); transition: transform .15s;
+  }
+  .coupon button:active { transform: scale(.95); }
+  .coupon.used { filter: grayscale(.7); opacity: .75; }
+  .coupon.used button { display: none; }
+  .stamp {
+    display: none; position: absolute; right: 14px; bottom: 14px; transform: rotate(-12deg);
+    border: 3px solid var(--pink-deep); color: var(--pink-deep); border-radius: 8px;
+    padding: 2px 8px; font-weight: 600; font-size: 13px; text-transform: uppercase; background: rgba(255,255,255,.6);
+  }
+  .coupon.used .stamp { display: block; }
+
+  /* toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); z-index: 60;
+    background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 15px;
+    transition: transform .35s cubic-bezier(.2, 1.3, .4, 1); max-width: calc(100vw - 32px); text-align: center;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 14px; padding: 20px 16px 40px; position: relative; z-index: 1; }
+  footer .big { font-family: "Caveat", cursive; font-size: 30px; color: var(--pink-deep); display: block; margin-bottom: 6px; }
+  footer button { background: none; border: 0; color: var(--ink-soft); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; opacity: .6; margin-top: 16px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="sky"></div>
+
+<main>
+  <!-- HERO -->
+  <header class="hero">
+    <p class="greet" id="greet">Ahoj</p>
+    <h1 class="name">Dominika</h1>
+
+    <svg class="mascot" id="mascot" viewBox="0 0 200 200" role="button" aria-label="Pohladkaj ma">
+      <path d="M100 178 C 30 130, 8 90, 30 55 C 50 25, 90 30, 100 60 C 110 30, 150 25, 170 55 C 192 90, 170 130, 100 178 Z" fill="#ff8fb1"/>
+      <path d="M52 60 C 60 45, 78 44, 86 56" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".55"/>
+      <ellipse class="eye" cx="75" cy="98" rx="8" ry="11" fill="#5a3a48"/>
+      <ellipse class="eye" cx="125" cy="98" rx="8" ry="11" fill="#5a3a48"/>
+      <circle cx="78" cy="94" r="3" fill="#fff"/><circle cx="128" cy="94" r="3" fill="#fff"/>
+      <ellipse cx="60" cy="118" rx="11" ry="7" fill="#ff5c8d" opacity=".55"/>
+      <ellipse cx="140" cy="118" rx="11" ry="7" fill="#ff5c8d" opacity=".55"/>
+      <path d="M88 118 Q 100 132 112 118" stroke="#5a3a48" stroke-width="5" stroke-linecap="round" fill="none"/>
+    </svg>
+
+    <div class="bubble" id="bubble">Klikni na mňa 👆</div>
+    <div class="counter" id="counter" hidden></div>
+    <a class="scroll-hint" href="#jar">nižšie ťa niečo čaká ↓</a>
+  </header>
+
+  <!-- DAILY JAR -->
+  <section id="jar">
+    <h2>Pohárik lásky</h2>
+    <p class="sub">Každý deň je v ňom pre teba jeden nový lístok. Zajtra príde ďalší 💌</p>
+    <div class="jar-wrap">
+      <svg class="jar" id="jarSvg" viewBox="0 0 160 200" role="button" aria-label="Vytiahni lístok">
+        <rect x="42" y="14" width="76" height="22" rx="6" fill="#e8b7c7"/>
+        <rect x="36" y="30" width="88" height="10" rx="5" fill="#d99bb0"/>
+        <path d="M40 40 H120 C 140 60, 145 90, 145 120 C 145 175, 120 190, 80 190 C 40 190, 15 175, 15 120 C 15 90, 20 60, 40 40 Z" fill="#fdeef3" stroke="#f3c1d2" stroke-width="4"/>
+        <g font-size="22">
+          <text x="40" y="150">💗</text><text x="80" y="165">💌</text><text x="95" y="130">💕</text>
+          <text x="50" y="118">💖</text><text x="30" y="178">💝</text><text x="100" y="180">💞</text><text x="68" y="140">💓</text>
+        </g>
+        <path d="M30 70 C 26 90, 26 110, 28 130" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity=".8"/>
+      </svg>
+      <div class="note" id="note"></div>
+    </div>
+  </section>
+
+  <!-- OPEN WHEN -->
+  <section>
+    <h2>Otvor, keď…</h2>
+    <p class="sub">Listy na chvíle, keď ma nemáš hneď poruke.</p>
+    <div class="letters" id="letters"></div>
+  </section>
+
+  <!-- COUPONS -->
+  <section>
+    <h2>Kupóny lásky</h2>
+    <p class="sub">Skutočné. Platné. Vymáhateľné. Klikni a daj mi vedieť 😌</p>
+    <div class="coupons" id="coupons"></div>
+  </section>
+</main>
+
+<footer>
+  <span class="big">Ľúbim ťa, Dominika 💗</span>
+  <span id="sig"></span>
+  <br><button id="reset" type="button">obnoviť kupóny (tajné tlačidlo pre manžela)</button>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="paper">
+    <button class="x" id="close" aria-label="Zavrieť">×</button>
+    <h3 id="mTitle"></h3>
+    <p id="mBody"></p>
+    <p class="sign hand" id="mSign"></p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ✏️  NASTAVENIA — tu si to prispôsob
+   ============================================================ */
+const CONFIG = {
+  // Dátum, odkedy ste spolu (RRRR-MM-DD). Nechaj null, ak nechceš počítadlo.
+  spoluOd: null,           // napr. "2019-06-14"
+  // Dátum svadby (RRRR-MM-DD). Nechaj null, ak ho nechceš zobraziť.
+  svadba: null,            // napr. "2023-08-19"
+  // Podpis pod listami
+  podpis: "Tvoj muž 💗",
+};
+
+/* Lístky do pohárika — každý deň jeden (pokojne pridaj vlastné spomienky!) */
+const NOTES = [
+  "Keď sa smeješ, celý svet je o kúsok krajší.",
+  "Si môj najobľúbenejší človek. Navždy.",
+  "S tebou je aj obyčajný utorok sviatok.",
+  "Si silnejšia, než si myslíš.",
+  "Doma je tam, kde si ty.",
+  "Tvoje objatia by mali byť na predpis.",
+  "Si krásna. Aj teraz. Hlavne teraz.",
+  "Vybral by som si ťa znova. Každý jeden deň.",
+  "Si dôvod, prečo sa teším domov.",
+  "Máš najkrajšie oči, aké som kedy videl.",
+  "Dnes buď na seba milá. Zaslúžiš si to.",
+  "Keď si vedľa mňa, všetko zvládnem.",
+  "Si moja najlepšia kamarátka a moja najväčšia láska zároveň.",
+  "Aj keď ti to nehovorím dosť často: som na teba hrdý.",
+  "Nikto ma nerozosmeje tak ako ty.",
+  "Si ako teplý čaj v zime. ☕",
+  "Svet má šťastie, že v ňom si. A ja ešte väčšie.",
+  "Tvoje „dobrú noc“ je môj najobľúbenejší koniec dňa.",
+  "Nemusíš byť dokonalá. Si dokonale moja.",
+  "Len pripomínam: si úžasná. To je celé. 💗",
+  "Keby som mal jedno želanie, prial by som si viac času s tebou.",
+  "Dnes ťa objímem o 5 sekúnd dlhšie. Počítaj.",
+  "Si moje „a žili šťastne, až kým nepomreli“.",
+  "Všímam si všetky drobnosti, ktoré robíš. Ďakujem za ne.",
+  "Si to najkrajšie, čo sa mi kedy stalo.",
+  "Aj v daždi je s tebou slnečno. 🌦️",
+  "Ty + ja = moja obľúbená rovnica.",
+  "Ľúbim, ako sa tváriš, keď sa sústredíš.",
+  "Dnešná úloha: usmej sa na seba do zrkadla. Ja by som to urobil.",
+  "Ďakujem, že si. Jednoducho, že si.",
+  "Mám ťa rád viac ako včera a menej ako zajtra.",
+];
+
+/* Listy „Otvor, keď…“ */
+const LETTERS = [
+  { when: "si smutná", seal: "🌧️", c: "#d9e6ff",
+    body: "Moja Dominika,\nak čítaš tento list, niečo ťa trápi. Chcem, aby si vedela, že je úplne v poriadku byť smutná. Nemusíš byť stále silná.\n\nPríď za mnou, objímem ťa a nemusíš mi nič vysvetľovať. Všetko prejde — a ja budem pri tebe aj vtedy, keď to bude trvať dlhšie.\n\nĽúbim ťa. Aj tvoje smutné dni." },
+  { when: "ti chýbam", seal: "🫂", c: "#ffd3e0",
+    body: "Aj ty mne. Strašne.\n\nZatvor oči a predstav si, že ťa držím za ruku. Cítiš? To som ja.\n\nČoskoro budem pri tebe a každú minútu ti vynahradím. Medzitým mi napíš — aj keby len jedno srdiečko." },
+  { when: "sa na mňa hneváš", seal: "😤", c: "#ffd9c4",
+    body: "Dobre… asi som niečo pokazil. Prepáč mi.\n\nAj keď sa hneváme, nikdy nie sme proti sebe — sme spolu proti problému. Daj mi chvíľku a vypočujem ťa.\n\nA potom… objatie?\n(Mimochodom, nižšie máš kupón na výhru v hádke. Len hovorím. 😉)" },
+  { when: "nemôžeš zaspať", seal: "🌙", c: "#e3d9ff",
+    body: "Skúsime spolu:\nnádych na 4… zadrž na 4… výdych na 6.\nEšte raz. A ešte raz.\n\nMysli na miesto, kde ti bolo najlepšie. Ja som hneď vedľa teba (alebo aspoň v myšlienkach).\n\nZajtrajšok počká. Dobrú noc, moja láska." },
+  { when: "potrebuješ povzbudiť", seal: "💪", c: "#c9f0e0",
+    body: "Zvládneš to.\nNie preto, že je to ľahké, ale preto, že si to ty.\n\nUž si zvládla toľko vecí, o ktorých si si myslela, že nedáš. Verím v teba viac, ako si dokážeš predstaviť.\n\nTak šup, ukáž im to!" },
+  { when: "sa chceš zasmiať", seal: "🐧", c: "#fff1b8",
+    body: "Čo povedal tučniak tučniačke na prvom rande?\n\n…\n\nNič. Tučniaky nevedia rozprávať.\n\nAle keby vedeli, povedal by jej: „Si najkrajšia na celom ľadovci.“\n\nUsmiala si sa? Misia splnená. 🐧💗" },
+];
+
+/* Kupóny */
+const COUPONS = [
+  { id: "masaz",    ic: "💆‍♀️", t: "Masáž",                    d: "15 minút masáže chrbta. Bez reptania, bez počítania.", c: "#ffd3e0" },
+  { id: "ranajky",  ic: "🥞", t: "Raňajky do postele",        d: "Palacinky, káva a ty sa ani nepohneš.", c: "#ffe6c9" },
+  { id: "riad",     ic: "🧽", t: "Týždeň bez riadu",          d: "Celý týždeň umývam riad ja. Ty len krásne vyzeráš.", c: "#c9f0e0" },
+  { id: "film",     ic: "🍿", t: "Filmový večer",             d: "Vyberáš film ty. Aj keby to bola romantická komédia č. 47.", c: "#e3d9ff" },
+  { id: "hadka",    ic: "🏆", t: "Výhra v hádke",             d: "Jedna hádka, v ktorej máš automaticky pravdu.", c: "#fff1b8" },
+  { id: "rande",    ic: "🌹", t: "Rande podľa teba",          d: "Kam len chceš, ja všetko zariadim.", c: "#ffd9c4" },
+  { id: "vecera",   ic: "🍝", t: "Večera odo mňa",            d: "Uvarím, prestriem, zapálim sviečku. Upratem tiež.", c: "#d9e6ff" },
+  { id: "bezmobil", ic: "📵", t: "Deň len pre nás",           d: "Celý deň bez mobilu, iba ty a ja.", c: "#ffd3e0" },
+  { id: "prianie",  ic: "✨", t: "Splnené želanie",           d: "Jedno (rozumné 😅) želanie podľa tvojho výberu.", c: "#c9f0e0" },
+  { id: "objatie",  ic: "🤗", t: "Objatie na požiadanie",     d: "Tento kupón nikdy nevyprší. Uplatni koľkokrát chceš.", c: "#e3d9ff", forever: true },
+];
+
+/* ============================================================ */
+const $ = (s) => document.querySelector(s);
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const DAY = 86400000;
+const todayIndex = () => { const n = new Date(); return Math.floor(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / DAY); };
+const daysSince = (iso) => { const [y, m, d] = iso.split("-").map(Number); return todayIndex() - Math.floor(Date.UTC(y, m - 1, d) / DAY); };
+const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+/* floating hearts */
+const SKY = ["💗", "💕", "🌸", "✨", "💖", "🩷", "🌷"];
+function spawnFloat() {
+  const el = document.createElement("span");
+  el.className = "float";
+  el.textContent = SKY[Math.random() * SKY.length | 0];
+  el.style.left = Math.random() * 100 + "vw";
+  el.style.fontSize = 14 + Math.random() * 18 + "px";
+  el.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
+  el.style.setProperty("--spin", (Math.random() * 80 - 40) + "deg");
+  el.style.animationDuration = 9 + Math.random() * 8 + "s";
+  $("#sky").appendChild(el);
+  el.addEventListener("animationend", () => el.remove());
+}
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  for (let i = 0; i < 6; i++) setTimeout(spawnFloat, i * 700);
+  setInterval(spawnFloat, 1400);
+}
+
+/* heart burst on every tap */
+function burst(x, y, n = 7) {
+  for (let i = 0; i < n; i++) {
+    const b = document.createElement("span");
+    b.className = "burst";
+    b.textContent = ["💗", "💖", "💕"][i % 3];
+    const a = (Math.PI * 2 * i) / n, r = 40 + Math.random() * 30;
+    b.style.left = x - 9 + "px"; b.style.top = y - 9 + "px";
+    b.style.setProperty("--dx", Math.cos(a) * r + "px");
+    b.style.setProperty("--dy", Math.sin(a) * r + "px");
+    document.body.appendChild(b);
+    b.addEventListener("animationend", () => b.remove());
+  }
+}
+document.addEventListener("pointerdown", (e) => burst(e.clientX, e.clientY, 5));
+
+/* greeting */
+(function greet() {
+  const h = new Date().getHours();
+  const g = h < 5 ? "Prečo ešte nespíš, zlatíčko? 🌙"
+    : h < 10 ? "Dobré ráno, slniečko ☀️"
+    : h < 17 ? "Krásny deň, moja láska 🌷"
+    : h < 22 ? "Dobrý večer, krásavica ✨"
+    : "Sladké sny, moja princezná 🌙";
+  $("#greet").textContent = g;
+})();
+
+/* counter */
+(function counter() {
+  const parts = [];
+  if (CONFIG.spoluOd) { const d = daysSince(CONFIG.spoluOd); parts.push(`Spolu už <b>${d.toLocaleString("sk")}</b> ${plural(d, "deň", "dni", "dní")} 💑`); }
+  if (CONFIG.svadba)  { const d = daysSince(CONFIG.svadba);  parts.push(`Manželia už <b>${d.toLocaleString("sk")}</b> ${plural(d, "deň", "dni", "dní")} 💍`); }
+  if (parts.length) { const c = $("#counter"); c.innerHTML = parts.join("<br>"); c.hidden = false; }
+})();
+
+/* mascot */
+const PETS = [
+  "Ľúbim ťa! 💗", "Ešte! Ešte! 🥰", "Si najlepšia na svete", "Hihi, to šteklí 🙈",
+  "Dnes ti to veľmi pristane ✨", "Objatie? 🤗", "Si moje slniečko ☀️",
+  "Pusa! 😘", "Tvoj muž ťa zbožňuje", "Mňau… teda, chcel som povedať: ľúbim ťa",
+];
+let pet = 0;
+$("#mascot").addEventListener("click", (e) => {
+  const b = $("#bubble");
+  b.textContent = PETS[pet++ % PETS.length];
+  b.classList.add("bump"); setTimeout(() => b.classList.remove("bump"), 200);
+  burst(e.clientX, e.clientY, 12);
+});
+
+/* daily jar */
+(function jar() {
+  const idx = todayIndex();
+  const note = NOTES[((idx % NOTES.length) + NOTES.length) % NOTES.length];
+  const el = $("#note");
+  const opened = store.get("jarDay") === idx;
+  const date = new Date().toLocaleDateString("sk", { day: "numeric", month: "long" });
+  el.innerHTML = `${note}<small>lístok na ${date} · zajtra ťa čaká nový</small>`;
+  if (opened) el.classList.add("show");
+  $("#jarSvg").addEventListener("click", (e) => {
+    const j = $("#jarSvg"); j.classList.remove("shake"); void j.offsetWidth; j.classList.add("shake");
+    if (!el.classList.contains("show")) {
+      setTimeout(() => { el.classList.add("show"); burst(e.clientX, e.clientY, 14); }, 450);
+      store.set("jarDay", idx);
+    } else toast("Dnešný lístok už máš. Zajtra bude nový 💌");
+  });
+})();
+
+/* letters */
+(function letters() {
+  const read = store.get("read", []);
+  const wrap = $("#letters");
+  LETTERS.forEach((l, i) => {
+    const b = document.createElement("button");
+    b.className = "env" + (read.includes(i) ? " read" : "");
+    b.style.setProperty("--c", l.c);
+    b.innerHTML = `<div class="flap"></div><span class="seal">${l.seal}</span><span class="when">…${l.when}</span>`;
+    b.addEventListener("click", () => {
+      $("#mTitle").textContent = "Otvor, keď " + l.when;
+      $("#mBody").textContent = l.body;
+      $("#mSign").textContent = CONFIG.podpis;
+      $("#modal").classList.add("open");
+      if (!read.includes(i)) { read.push(i); store.set("read", read); b.classList.add("read"); }
+    });
+    wrap.appendChild(b);
+  });
+  const close = () => $("#modal").classList.remove("open");
+  $("#close").addEventListener("click", close);
+  $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
+
+/* coupons */
+function renderCoupons() {
+  const used = store.get("used", {});
+  const wrap = $("#coupons"); wrap.innerHTML = "";
+  COUPONS.forEach((c) => {
+    const el = document.createElement("div");
+    el.className = "coupon" + (used[c.id] && !c.forever ? " used" : "");
+    el.style.setProperty("--c", c.c);
+    el.innerHTML = `<div class="ic">${c.ic}</div><div class="t">${c.t}</div><div class="d">${c.d}</div>
+      <button type="button">Uplatniť 💌</button>
+      <div class="stamp">uplatnené ${used[c.id] || ""}</div>`;
+    el.querySelector("button").addEventListener("click", (e) => redeem(c, e));
+    wrap.appendChild(el);
+  });
+}
+async function redeem(c, e) {
+  if (!c.forever && !confirm(`Naozaj chceš teraz uplatniť kupón „${c.t}“?`)) return;
+  burst(e.clientX, e.clientY, 16);
+  const text = `Uplatňujem kupón lásky: ${c.ic} ${c.t}! Tak šup-šup 😘 — Dominika`;
+  if (!c.forever) {
+    const used = store.get("used", {});
+    used[c.id] = new Date().toLocaleDateString("sk");
+    store.set("used", used);
+    renderCoupons();
+  }
+  try {
+    if (navigator.share) { await navigator.share({ text }); return; }
+    await navigator.clipboard.writeText(text);
+    toast("Skopírované! Pošli mi to správou 💌");
+  } catch (err) {
+    if (err && err.name === "AbortError") { toast("Kupón je uplatnený, stačí mi povedať 💗"); return; }
+    toast("Kupón uplatnený! Povedz mi o ňom 💗");
+  }
+}
+renderCoupons();
+$("#reset").addEventListener("click", () => {
+  if (confirm("Obnoviť všetky kupóny?")) { store.set("used", {}); renderCoupons(); toast("Kupóny sú zase ako nové ✨"); }
+});
+
+$("#sig").textContent = "— " + CONFIG.podpis;
+</script>
+</body>
+</html>
