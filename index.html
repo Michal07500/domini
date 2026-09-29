@@ -198,6 +198,48 @@
   }
   .toast.show { transform: translate(-50%, 0); }
 
+  /* buttons */
+  .btn {
+    border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: 17px;
+    background: var(--pink); color: #fff; padding: 12px 26px; border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(232, 90, 136, .35); transition: transform .15s, background .2s;
+  }
+  .btn:hover { background: var(--pink-deep); }
+  .btn:active { transform: scale(.95); }
+  .btn.ghost { background: var(--card); color: var(--ink-soft); box-shadow: 0 3px 10px rgba(0,0,0,.08); }
+
+  /* game */
+  .game { position: relative; padding: 0; overflow: hidden; }
+  #cv {
+    display: block; width: 100%; height: 440px; touch-action: none; cursor: none;
+    background: linear-gradient(#fff 0%, #ffeef4 70%, #ffd9e5 100%);
+  }
+  .hud {
+    position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between;
+    pointer-events: none; font-size: 16px;
+  }
+  .hud span { background: rgba(255,255,255,.85); padding: 4px 12px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .hud b { color: var(--pink-deep); }
+  .overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 20px; text-align: center; background: rgba(255, 246, 248, .88); backdrop-filter: blur(2px);
+  }
+  .overlay[hidden] { display: none; }
+  .overlay .big { font-family: "Caveat", cursive; font-size: 40px; color: var(--pink-deep); line-height: 1; }
+  .overlay .legend { font-size: 15px; color: var(--ink-soft); line-height: 1.7; }
+  .overlay .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  /* question */
+  .ask { position: relative; min-height: 300px; text-align: center; padding: 34px 20px 110px; }
+  .askq { font-family: "Caveat", cursive; font-size: clamp(34px, 8vw, 46px); line-height: 1.1; margin: 0 0 26px; }
+  .askbtns[hidden] { display: none; }
+  .askbtns { display: flex; gap: 16px; justify-content: center; align-items: center; }
+  #yes { transition: transform .25s cubic-bezier(.2, 1.4, .4, 1); }
+  #no { transition: left .25s, top .25s; white-space: nowrap; }
+  #no.run { position: absolute; }
+  .askres { font-size: 20px; margin: 10px 0 0; }
+  .askres .big { font-family: "Caveat", cursive; font-size: 48px; color: var(--pink-deep); display: block; }
+
   footer { text-align: center; color: var(--ink-soft); font-size: 14px; padding: 20px 16px 40px; position: relative; z-index: 1; }
   footer .big { font-family: "Caveat", cursive; font-size: 30px; color: var(--pink-deep); display: block; margin-bottom: 6px; }
   footer button { background: none; border: 0; color: var(--ink-soft); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; opacity: .6; margin-top: 16px; }
@@ -234,8 +276,8 @@
 
   <!-- DAILY JAR -->
   <section id="jar">
-    <h2>Pohárik lásky</h2>
-    <p class="sub">Každý deň je v ňom pre teba jeden nový lístok. Zajtra príde ďalší 💌</p>
+    <h2>Pohárik úsmevov</h2>
+    <p class="sub">Každý deň je v ňom pre teba jeden nový lístok. Zatras ním 💌</p>
     <div class="jar-wrap">
       <svg class="jar" id="jarSvg" viewBox="0 0 160 200" role="button" aria-label="Vytiahni lístok">
         <rect x="42" y="14" width="76" height="22" rx="6" fill="#e8b7c7"/>
@@ -251,25 +293,53 @@
     </div>
   </section>
 
+  <!-- GAME -->
+  <section id="game">
+    <h2>Chyť srdiečka</h2>
+    <p class="sub">30 sekúnd, jeden košík a veľa srdiečok. Prekonáš svoj rekord?</p>
+    <div class="game card">
+      <canvas id="cv" aria-label="Hra Chyť srdiečka"></canvas>
+      <div class="hud"><span>⏱ <b id="gTime">30</b></span><span>💗 <b id="gScore">0</b></span><span>🏆 <b id="gBest">0</b></span></div>
+      <div class="overlay" id="gOver">
+        <div class="big" id="gTitle">Pripravená? 💗</div>
+        <div class="legend" id="gMsg">Hýb košíkom prstom, myšou alebo šípkami.<br>💗 +1 &nbsp; 🧁 +2 &nbsp; ⭐ +3 &nbsp; 🌧️ −3 &nbsp; 🥦 −2</div>
+        <div class="row"><button class="btn" id="gStart" type="button">Hrať ▶</button><button class="btn ghost" id="gShare" type="button" hidden>Pochváľ sa mi 📩</button></div>
+      </div>
+    </div>
+  </section>
+
   <!-- OPEN WHEN -->
   <section>
     <h2>Otvor, keď…</h2>
-    <p class="sub">Listy na chvíle, keď ma nemáš hneď poruke.</p>
+    <p class="sub">Malé listy na chvíle, keď ich budeš potrebovať.</p>
     <div class="letters" id="letters"></div>
   </section>
 
   <!-- COUPONS -->
   <section>
-    <h2>Kupóny lásky</h2>
+    <h2>Kupóny pre Dominiku</h2>
     <p class="sub">Skutočné. Platné. Vymáhateľné. Klikni a daj mi vedieť 😌</p>
     <div class="coupons" id="coupons"></div>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="question">
+    <h2>A ešte jedna otázka…</h2>
+    <div class="card ask" id="askCard">
+      <p class="askq" id="askQ"></p>
+      <div class="askbtns" id="askBtns">
+        <button class="btn" id="yes" type="button">Áno 💗</button>
+        <button class="btn ghost" id="no" type="button">Nie</button>
+      </div>
+      <p class="askres" id="askRes" hidden></p>
+    </div>
   </section>
 </main>
 
 <footer>
-  <span class="big">Ľúbim ťa, Dominika 💗</span>
+  <span class="big">Dominika, si výnimočná 💗</span>
   <span id="sig"></span>
-  <br><button id="reset" type="button">obnoviť kupóny (tajné tlačidlo pre manžela)</button>
+  <br><button id="reset" type="button">obnoviť kupóny (tajné tlačidlo)</button>
 </footer>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true">
@@ -287,59 +357,60 @@
    ✏️  NASTAVENIA — tu si to prispôsob
    ============================================================ */
 const CONFIG = {
-  // Dátum, odkedy ste spolu (RRRR-MM-DD). Nechaj null, ak nechceš počítadlo.
-  spoluOd: null,           // napr. "2019-06-14"
-  // Dátum svadby (RRRR-MM-DD). Nechaj null, ak ho nechceš zobraziť.
-  svadba: null,            // napr. "2023-08-19"
+  // Odkedy sa poznáte (RRRR-MM-DD). Nechaj null, ak nechceš počítadlo.
+  poznameSaOd: null,       // napr. "2024-09-02"
   // Podpis pod listami
-  podpis: "Tvoj muž 💗",
+  podpis: "tvoj obľúbený človek 😌",
+  // Otázka na konci stránky (tlačidlo „Nie“ sa nedá stlačiť 😏)
+  otazka: "Pôjdeš so mnou na kávu? ☕",
 };
 
-/* Lístky do pohárika — každý deň jeden (pokojne pridaj vlastné spomienky!) */
+/* Lístky do pohárika — každý deň jeden (pokojne pridaj vlastné) */
 const NOTES = [
   "Keď sa smeješ, celý svet je o kúsok krajší.",
-  "Si môj najobľúbenejší človek. Navždy.",
-  "S tebou je aj obyčajný utorok sviatok.",
   "Si silnejšia, než si myslíš.",
-  "Doma je tam, kde si ty.",
-  "Tvoje objatia by mali byť na predpis.",
-  "Si krásna. Aj teraz. Hlavne teraz.",
-  "Vybral by som si ťa znova. Každý jeden deň.",
-  "Si dôvod, prečo sa teším domov.",
-  "Máš najkrajšie oči, aké som kedy videl.",
-  "Dnes buď na seba milá. Zaslúžiš si to.",
-  "Keď si vedľa mňa, všetko zvládnem.",
-  "Si moja najlepšia kamarátka a moja najväčšia láska zároveň.",
-  "Aj keď ti to nehovorím dosť často: som na teba hrdý.",
+  "Máš úsmev, ktorý by mal byť zakázaný. Je nebezpečne pekný.",
+  "Si krásna. Aj dnes. Hlavne dnes.",
   "Nikto ma nerozosmeje tak ako ty.",
   "Si ako teplý čaj v zime. ☕",
-  "Svet má šťastie, že v ňom si. A ja ešte väčšie.",
-  "Tvoje „dobrú noc“ je môj najobľúbenejší koniec dňa.",
-  "Nemusíš byť dokonalá. Si dokonale moja.",
+  "Svet má šťastie, že v ňom si.",
+  "Dnes buď na seba milá. Zaslúžiš si to.",
   "Len pripomínam: si úžasná. To je celé. 💗",
-  "Keby som mal jedno želanie, prial by som si viac času s tebou.",
-  "Dnes ťa objímem o 5 sekúnd dlhšie. Počítaj.",
-  "Si moje „a žili šťastne, až kým nepomreli“.",
-  "Všímam si všetky drobnosti, ktoré robíš. Ďakujem za ne.",
-  "Si to najkrajšie, čo sa mi kedy stalo.",
-  "Aj v daždi je s tebou slnečno. 🌦️",
-  "Ty + ja = moja obľúbená rovnica.",
-  "Ľúbim, ako sa tváriš, keď sa sústredíš.",
-  "Dnešná úloha: usmej sa na seba do zrkadla. Ja by som to urobil.",
+  "S tebou je aj obyčajný utorok zábavný.",
+  "Máš fakt dobrý vkus. (Dôkaz: čítaš túto stránku 😏)",
+  "Tvoja energia je nákazlivá. V tom dobrom zmysle.",
+  "Dnešná úloha: usmej sa na seba do zrkadla.",
   "Ďakujem, že si. Jednoducho, že si.",
-  "Mám ťa rád viac ako včera a menej ako zajtra.",
+  "Keď sa s tebou rozprávam, čas letí nejako rýchlejšie.",
+  "Si presne taká, aká máš byť.",
+  "Aj v daždi je s tebou slnečno. 🌦️",
+  "Tvoj smiech je môj obľúbený zvuk.",
+  "Si výnimočná. A to nehovorím hocikomu.",
+  "Dnes ti všetko vyjde. Cítim to. ✨",
+  "Keby bola krása čas, bola by si večnosť. (Áno, viem, cheesy 🧀)",
+  "Si dôkaz, že dobrí ľudia existujú.",
+  "Máš najkrajšie oči, aké som kedy videl.",
+  "Ak dnes niečo nevyjde, nevadí. Ty si stále super.",
+  "Keby som si mal na pustý ostrov zobrať jedného človeka… vieš koho.",
+  "Si ako obľúbená pesnička — nikdy ma neomrzíš. 🎶",
+  "Vďaka tebe je môj deň lepší. Vždy.",
+  "Si múdra, vtipná a krásna. Nefér kombinácia.",
+  "Pripomienka: napi sa vody a usmej sa. 💧",
+  "Myslím na teba. Len tak. 💭",
 ];
 
 /* Listy „Otvor, keď…“ */
 const LETTERS = [
   { when: "si smutná", seal: "🌧️", c: "#d9e6ff",
-    body: "Moja Dominika,\nak čítaš tento list, niečo ťa trápi. Chcem, aby si vedela, že je úplne v poriadku byť smutná. Nemusíš byť stále silná.\n\nPríď za mnou, objímem ťa a nemusíš mi nič vysvetľovať. Všetko prejde — a ja budem pri tebe aj vtedy, keď to bude trvať dlhšie.\n\nĽúbim ťa. Aj tvoje smutné dni." },
-  { when: "ti chýbam", seal: "🫂", c: "#ffd3e0",
-    body: "Aj ty mne. Strašne.\n\nZatvor oči a predstav si, že ťa držím za ruku. Cítiš? To som ja.\n\nČoskoro budem pri tebe a každú minútu ti vynahradím. Medzitým mi napíš — aj keby len jedno srdiečko." },
+    body: "Dominika,\nak čítaš tento list, niečo ťa trápi. Chcem, aby si vedela, že je úplne v poriadku byť smutná. Nemusíš byť stále silná.\n\nNapíš mi alebo zavolaj — vypočujem ťa a nemusíš mi nič vysvetľovať. Všetko prejde. A ja budem pri tebe aj vtedy, keď to bude trvať dlhšie.\n\nSi úžasná. Aj v smutné dni." },
+  { when: "sa nudíš", seal: "🥱", c: "#ffd3e0",
+    body: "Mám pre teba misiu:\n\n1. Pusti si svoju najobľúbenejšiu pesničku a zatancuj si (nikto sa nepozerá).\n2. Zahraj si „Chyť srdiečka“ a prekonaj svoj rekord.\n3. Napíš mi.\n\nNuda končí tu. 😎" },
+  { when: "máš stres", seal: "📚", c: "#c9f0e0",
+    body: "Stop. Nádych.\n\nNemusíš mať všetko hotové dnes. Rozdeľ to na malé kúsky a urob len ten prvý.\n\nPotom si daj pauzu, čokoládu a pripomeň si, že si už zvládla oveľa horšie veci.\n\nFandím ti. Nahlas. 📣" },
   { when: "sa na mňa hneváš", seal: "😤", c: "#ffd9c4",
-    body: "Dobre… asi som niečo pokazil. Prepáč mi.\n\nAj keď sa hneváme, nikdy nie sme proti sebe — sme spolu proti problému. Daj mi chvíľku a vypočujem ťa.\n\nA potom… objatie?\n(Mimochodom, nižšie máš kupón na výhru v hádke. Len hovorím. 😉)" },
+    body: "Dobre… asi som niečo pokazil. Prepáč mi.\n\nDaj mi chvíľku a vypočujem ťa — naozaj. Nechcem, aby medzi nami niečo stálo.\n\n(Mimochodom, nižšie máš kupón na výhru v hádke. Len hovorím. 😉)" },
   { when: "nemôžeš zaspať", seal: "🌙", c: "#e3d9ff",
-    body: "Skúsime spolu:\nnádych na 4… zadrž na 4… výdych na 6.\nEšte raz. A ešte raz.\n\nMysli na miesto, kde ti bolo najlepšie. Ja som hneď vedľa teba (alebo aspoň v myšlienkach).\n\nZajtrajšok počká. Dobrú noc, moja láska." },
+    body: "Skúsime spolu:\nnádych na 4… zadrž na 4… výdych na 6.\nEšte raz. A ešte raz.\n\nMysli na miesto, kde ti bolo najlepšie.\n\nZajtrajšok počká. Dobrú noc, Dominika." },
   { when: "potrebuješ povzbudiť", seal: "💪", c: "#c9f0e0",
     body: "Zvládneš to.\nNie preto, že je to ľahké, ale preto, že si to ty.\n\nUž si zvládla toľko vecí, o ktorých si si myslela, že nedáš. Verím v teba viac, ako si dokážeš predstaviť.\n\nTak šup, ukáž im to!" },
   { when: "sa chceš zasmiať", seal: "🐧", c: "#fff1b8",
@@ -348,15 +419,15 @@ const LETTERS = [
 
 /* Kupóny */
 const COUPONS = [
-  { id: "masaz",    ic: "💆‍♀️", t: "Masáž",                    d: "15 minút masáže chrbta. Bez reptania, bez počítania.", c: "#ffd3e0" },
-  { id: "ranajky",  ic: "🥞", t: "Raňajky do postele",        d: "Palacinky, káva a ty sa ani nepohneš.", c: "#ffe6c9" },
-  { id: "riad",     ic: "🧽", t: "Týždeň bez riadu",          d: "Celý týždeň umývam riad ja. Ty len krásne vyzeráš.", c: "#c9f0e0" },
+  { id: "kava",     ic: "☕", t: "Káva na môj účet",          d: "Alebo bubble tea. Alebo horúca čokoláda. Ty vyberáš.", c: "#ffe6c9" },
+  { id: "zmrzlina", ic: "🍦", t: "Zmrzlina",                  d: "Dve guľky, príchute podľa teba. Aj keby to bol šmolko.", c: "#ffd3e0" },
   { id: "film",     ic: "🍿", t: "Filmový večer",             d: "Vyberáš film ty. Aj keby to bola romantická komédia č. 47.", c: "#e3d9ff" },
   { id: "hadka",    ic: "🏆", t: "Výhra v hádke",             d: "Jedna hádka, v ktorej máš automaticky pravdu.", c: "#fff1b8" },
-  { id: "rande",    ic: "🌹", t: "Rande podľa teba",          d: "Kam len chceš, ja všetko zariadim.", c: "#ffd9c4" },
-  { id: "vecera",   ic: "🍝", t: "Večera odo mňa",            d: "Uvarím, prestriem, zapálim sviečku. Upratem tiež.", c: "#d9e6ff" },
-  { id: "bezmobil", ic: "📵", t: "Deň len pre nás",           d: "Celý deň bez mobilu, iba ty a ja.", c: "#ffd3e0" },
-  { id: "prianie",  ic: "✨", t: "Splnené želanie",           d: "Jedno (rozumné 😅) želanie podľa tvojho výberu.", c: "#c9f0e0" },
+  { id: "zapad",    ic: "🌅", t: "Prechádzka pri západe slnka", d: "Ty, ja a pekná obloha. Zober si pohodlné topánky.", c: "#ffd9c4" },
+  { id: "pizza",    ic: "🍕", t: "Pizza na mňa",              d: "Celá tvoja. Ani kúsok ti nezjem. (Možno jeden.)", c: "#c9f0e0" },
+  { id: "playlist", ic: "🎧", t: "Playlist len pre teba",     d: "Poskladám ti playlist presne podľa tvojej nálady.", c: "#d9e6ff" },
+  { id: "prianie",  ic: "✨", t: "Splnené želanie",           d: "Jedno (rozumné 😅) želanie podľa tvojho výberu.", c: "#ffd3e0" },
+  { id: "pocuvam",  ic: "👂", t: "Vypočujem ťa",              d: "Kedykoľvek, o čomkoľvek, aj o polnoci. Tento kupón nikdy neminie.", c: "#c9f0e0", forever: true },
   { id: "objatie",  ic: "🤗", t: "Objatie na požiadanie",     d: "Tento kupón nikdy nevyprší. Uplatni koľkokrát chceš.", c: "#e3d9ff", forever: true },
 ];
 
@@ -409,32 +480,32 @@ function burst(x, y, n = 7) {
     b.addEventListener("animationend", () => b.remove());
   }
 }
-document.addEventListener("pointerdown", (e) => burst(e.clientX, e.clientY, 5));
+document.addEventListener("pointerdown", (e) => { if (e.target.id !== "cv") burst(e.clientX, e.clientY, 5); });
 
 /* greeting */
 (function greet() {
   const h = new Date().getHours();
-  const g = h < 5 ? "Prečo ešte nespíš, zlatíčko? 🌙"
+  const g = h < 5 ? "Prečo ešte nespíš? 🌙"
     : h < 10 ? "Dobré ráno, slniečko ☀️"
-    : h < 17 ? "Krásny deň, moja láska 🌷"
+    : h < 17 ? "Krásny deň, Dominika 🌷"
     : h < 22 ? "Dobrý večer, krásavica ✨"
-    : "Sladké sny, moja princezná 🌙";
+    : "Sladké sny, princezná 🌙";
   $("#greet").textContent = g;
 })();
 
 /* counter */
 (function counter() {
-  const parts = [];
-  if (CONFIG.spoluOd) { const d = daysSince(CONFIG.spoluOd); parts.push(`Spolu už <b>${d.toLocaleString("sk")}</b> ${plural(d, "deň", "dni", "dní")} 💑`); }
-  if (CONFIG.svadba)  { const d = daysSince(CONFIG.svadba);  parts.push(`Manželia už <b>${d.toLocaleString("sk")}</b> ${plural(d, "deň", "dni", "dní")} 💍`); }
-  if (parts.length) { const c = $("#counter"); c.innerHTML = parts.join("<br>"); c.hidden = false; }
+  if (!CONFIG.poznameSaOd) return;
+  const d = daysSince(CONFIG.poznameSaOd), c = $("#counter");
+  c.innerHTML = `Poznáme sa už <b>${d.toLocaleString("sk")}</b> ${plural(d, "deň", "dni", "dní")} ✨`;
+  c.hidden = false;
 })();
 
 /* mascot */
 const PETS = [
-  "Ľúbim ťa! 💗", "Ešte! Ešte! 🥰", "Si najlepšia na svete", "Hihi, to šteklí 🙈",
-  "Dnes ti to veľmi pristane ✨", "Objatie? 🤗", "Si moje slniečko ☀️",
-  "Pusa! 😘", "Tvoj muž ťa zbožňuje", "Mňau… teda, chcel som povedať: ľúbim ťa",
+  "Ahoj Dominika! 💗", "Ešte! Ešte! 🥰", "Si najlepšia na svete", "Hihi, to šteklí 🙈",
+  "Dnes ti to veľmi pristane ✨", "Objatie? 🤗", "Si ako slniečko ☀️",
+  "Máš dnes super vibe 😍", "Si najlepšia, vieš o tom?", "Mňau… teda, chcel som povedať: si úžasná",
 ];
 let pet = 0;
 $("#mascot").addEventListener("click", (e) => {
@@ -504,26 +575,174 @@ function renderCoupons() {
 async function redeem(c, e) {
   if (!c.forever && !confirm(`Naozaj chceš teraz uplatniť kupón „${c.t}“?`)) return;
   burst(e.clientX, e.clientY, 16);
-  const text = `Uplatňujem kupón lásky: ${c.ic} ${c.t}! Tak šup-šup 😘 — Dominika`;
+  const text = `Uplatňujem kupón: ${c.ic} ${c.t}! Tak šup-šup 😘 — Dominika`;
   if (!c.forever) {
     const used = store.get("used", {});
     used[c.id] = new Date().toLocaleDateString("sk");
     store.set("used", used);
     renderCoupons();
   }
+  send(text);
+}
+async function send(text) {
   try {
     if (navigator.share) { await navigator.share({ text }); return; }
     await navigator.clipboard.writeText(text);
     toast("Skopírované! Pošli mi to správou 💌");
   } catch (err) {
-    if (err && err.name === "AbortError") { toast("Kupón je uplatnený, stačí mi povedať 💗"); return; }
-    toast("Kupón uplatnený! Povedz mi o ňom 💗");
+    toast("Stačí mi to povedať 💗");
   }
 }
 renderCoupons();
 $("#reset").addEventListener("click", () => {
   if (confirm("Obnoviť všetky kupóny?")) { store.set("used", {}); renderCoupons(); toast("Kupóny sú zase ako nové ✨"); }
 });
+
+/* game: Chyť srdiečka */
+(function game() {
+  const cv = $("#cv"), ctx = cv.getContext("2d"), LEN = 30;
+  const ITEMS = [
+    { e: "💗", p: 1, w: 50 }, { e: "🧁", p: 2, w: 14 }, { e: "⭐", p: 3, w: 8 },
+    { e: "🌧️", p: -3, w: 14 }, { e: "🥦", p: -2, w: 12 },
+  ];
+  const TOTAL = ITEMS.reduce((a, i) => a + i.w, 0);
+  const pick = () => { let r = Math.random() * TOTAL; for (const i of ITEMS) if ((r -= i.w) < 0) return i; return ITEMS[0]; };
+  let W, H, px = null, items = [], pops = [], score = 0, t0 = 0, last = 0, acc = 0, running = false;
+  const keys = new Set();
+  let best = store.get("best", 0);
+  $("#gBest").textContent = best;
+
+  function size() {
+    const dpr = devicePixelRatio || 1;
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    px = px == null ? W / 2 : Math.min(px, W - 28);
+    if (!running) draw();
+  }
+  addEventListener("resize", size);
+
+  const move = (e) => { const r = cv.getBoundingClientRect(); px = Math.max(28, Math.min(W - 28, e.clientX - r.left)); };
+  cv.addEventListener("pointermove", move);
+  cv.addEventListener("pointerdown", move);
+  addEventListener("keydown", (e) => { if (running && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { keys.add(e.key); e.preventDefault(); } });
+  addEventListener("keyup", (e) => keys.delete(e.key));
+
+  function draw() {
+    const by = H - 36;
+    ctx.clearRect(0, 0, W, H);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "30px serif";
+    items.forEach((o) => ctx.fillText(o.e, o.x, o.y));
+    ctx.font = "48px serif";
+    ctx.fillText("🧺", px, by);
+    ctx.font = "600 20px Fredoka, sans-serif";
+    pops.forEach((p) => {
+      ctx.globalAlpha = Math.max(0, 1 - p.t);
+      ctx.fillStyle = p.good ? "#e85a88" : "#8a8a9a";
+      ctx.fillText(p.txt, p.x, p.y);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(now) {
+    const dt = Math.min(50, now - last) / 1000; last = now;
+    const el = (now - t0) / 1000, left = Math.max(0, LEN - el);
+    const k = 1 + (el / LEN) * 1.3;           // postupne to zrýchľuje
+    const by = H - 36;
+
+    if (keys.has("ArrowLeft"))  px = Math.max(28, px - 420 * dt);
+    if (keys.has("ArrowRight")) px = Math.min(W - 28, px + 420 * dt);
+
+    acc += dt;
+    const every = 0.6 / k;
+    while (acc > every) {
+      acc -= every;
+      items.push({ ...pick(), x: 22 + Math.random() * (W - 44), y: -30, v: (130 + Math.random() * 90) * k });
+    }
+    items = items.filter((o) => {
+      o.y += o.v * dt;
+      if (Math.abs(o.y - by) < 26 && Math.abs(o.x - px) < 34) {
+        score = Math.max(0, score + o.p);
+        pops.push({ x: o.x, y: by - 34, t: 0, txt: (o.p > 0 ? "+" : "") + o.p, good: o.p > 0 });
+        if (o.p < 0 && navigator.vibrate) navigator.vibrate(40);
+        return false;
+      }
+      return o.y < H + 30;
+    });
+    pops = pops.filter((p) => { p.t += dt * 1.4; p.y -= 50 * dt; return p.t < 1; });
+
+    draw();
+    $("#gTime").textContent = Math.ceil(left);
+    $("#gScore").textContent = score;
+    if (left <= 0) return end();
+    requestAnimationFrame(loop);
+  }
+
+  function start() {
+    items = []; pops = []; score = 0; acc = 0; running = true;
+    t0 = last = performance.now();
+    $("#gOver").hidden = true;
+    requestAnimationFrame(loop);
+  }
+
+  function end() {
+    running = false;
+    const record = score > best;
+    if (record) { best = score; store.set("best", best); $("#gBest").textContent = best; }
+    const msg = score < 10 ? "Rozcvička! Skús to ešte raz 😄"
+      : score < 25 ? "Nieže zlé! Ešte jedno kolo? 💪"
+      : score < 45 ? "Wow, šikovná! Srdiečka sa ťa boja 🌟"
+      : "Legenda. Srdiečka nemajú šancu 👑";
+    $("#gTitle").textContent = `${score} ${plural(score, "bod", "body", "bodov")}${record ? " — nový rekord! 🏆" : ""}`;
+    $("#gMsg").textContent = msg;
+    $("#gStart").textContent = "Ešte raz ↻";
+    $("#gShare").hidden = false;
+    $("#gOver").hidden = false;
+    if (record && score > 0) { const r = cv.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 18); }
+  }
+
+  $("#gStart").addEventListener("click", start);
+  $("#gShare").addEventListener("click", () => send(`Dala som ${best} ${plural(best, "bod", "body", "bodov")} v hre Chyť srdiečka 💗 Prekonaj ma, ak na to máš 😏`));
+  size();
+})();
+
+/* question with the runaway „Nie“ */
+(function question() {
+  const card = $("#askCard"), no = $("#no"), yes = $("#yes");
+  $("#askQ").textContent = CONFIG.otazka;
+  const NOPE = ["Nie", "Si si istá? 🤨", "Naozaj?", "Skús ešte raz 😏", "Toto tlačidlo sa nedá 🙈", "Hmm… nie", "Stlač radšej to druhé", "Nie nie nie 😅"];
+  let tries = 0;
+
+  function done(animate) {
+    $("#askBtns").hidden = true;
+    const r = $("#askRes");
+    r.innerHTML = `<span class="big">Jupííí! 🎉</span>Tak to je dohodnuté. Teším sa 😌<br><br><button class="btn" type="button">Daj mi vedieť 💌</button>`;
+    r.hidden = false;
+    r.querySelector("button").addEventListener("click", () => send(`${CONFIG.otazka}\nÁNO! 💗 — Dominika`));
+    if (animate) {
+      const b = card.getBoundingClientRect();
+      for (let i = 0; i < 6; i++) setTimeout(() => burst(b.left + Math.random() * b.width, b.top + Math.random() * b.height, 12), i * 150);
+    }
+  }
+  if (store.get("yes")) done(false);
+
+  function run(e) {
+    e.preventDefault();
+    tries++;
+    no.textContent = NOPE[tries % NOPE.length];
+    no.classList.add("run");
+    const c = card.getBoundingClientRect();
+    const maxX = c.width - no.offsetWidth - 12, maxY = c.height - no.offsetHeight - 12, minY = $("#askBtns").offsetTop + 70;
+    no.style.left = 12 + Math.random() * Math.max(0, maxX - 12) + "px";
+    no.style.top = Math.min(maxY, minY + Math.random() * Math.max(0, maxY - minY)) + "px";
+    yes.style.transform = `scale(${Math.min(1 + tries * 0.1, 1.6)})`;
+  }
+  no.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") run(e); });
+  no.addEventListener("pointerdown", run);
+  no.addEventListener("click", (e) => { e.preventDefault(); if (e.detail === 0) run(e); }); // klávesnica
+  yes.addEventListener("click", () => { store.set("yes", true); done(true); });
+})();
 
 $("#sig").textContent = "— " + CONFIG.podpis;
 </script>
