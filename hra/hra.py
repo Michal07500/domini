@@ -5,9 +5,22 @@
 
 import json
 import math
+import os
 import random
+import sys
 
 import pygame
+
+# Ostatné súbory hry musia byť v tom istom priečinku ako hra.py #
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+if not os.path.exists(os.path.join(HERE, "nastavenia.py")):
+    print("\nCHYBA: V priečinku s hra.py chýbajú ostatné súbory hry (nastavenia.py, grafika.py, ...).")
+    print("Hru si pravdepodobne spustil priamo zo ZIP súboru.")
+    print("Klikni na ZIP pravým tlačidlom -> 'Extrahovať všetko...' a spusti hra.py z rozbaleného priečinka.")
+    print("Aktuálny priečinok:", HERE)
+    input("\nStlač Enter na ukončenie...")
+    sys.exit(1)
 
 from nastavenia import *
 from grafika import (FONT, FONT_BIG, FONT_HUGE, FONT_SMALL, HEART_EMPTY, HEART_FULL, Background, VhsFilter,
