@@ -25,3 +25,6 @@ Po chvíli bude stránka na `https://<tvoj-účet>.github.io/domini/`.
 
 ## Hra na ročníkovú prácu
 V priečinku [`hra/`](hra/) je pixelová VHS boss-rush hra v Pygame – *Prekliate kazety* (5 levelov, 5 bossov, vylepšenia). Spustenie: `pip install pygame` a `python hra/hra.py`. Viac v [`hra/README.md`](hra/README.md).
+
+## Valorant Stats
+V priečinku [`valorant-stats/`](valorant-stats/) je poradca pre Valorant v Pythone: veľké okno a malý overlay nad hrou. Radí, či hrať Reynu alebo Breacha, čo kúpiť v každom kole, a učí sa z tvojej histórie. Spustenie: `valorant-stats/spustit.bat`. Viac v [`valorant-stats/README.md`](valorant-stats/README.md).
