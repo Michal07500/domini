@@ -26,19 +26,35 @@ BREACH_SYNERGY = {"Raze", "Jett", "Neon", "Iso", "Phoenix", "Yoru", "Waylay"}
 
 # Schopnosti: slot -> (názov, cena, max. nábojov, priorita nákupu – nižšie = dôležitejšie) #
 # Slot podľa valorant-api.com: Grenade = C, Ability1 = Q, Ability2 = E, Ultimate = X #
+# Ceny sa dajú zmeniť aj v programe (Nastavenia -> Ceny schopností). #
 ABILITIES = {
     "Reyna": [
         ("Grenade", "Leer", 250, 1, 1),
-        ("Ability1", "Devour", 100, 2, 2),
+        ("Ability1", "Devour", 200, 1, 2),
         ("Grenade", "Leer", 250, 1, 3),   # druhý náboj Leer
-        ("Ability2", "Dismiss", 100, 2, 4),
+        ("Ability2", "Dismiss", 200, 1, 4),
     ],
     "Breach": [
-        ("Ability1", "Flashpoint", 250, 1, 1),
-        ("Grenade", "Aftershock", 200, 1, 2),
-        ("Ability1", "Flashpoint", 250, 1, 3),  # druhý náboj Flashpoint
+        ("Ability1", "Flashpoint", 200, 1, 1),
+        ("Grenade", "Aftershock", 100, 1, 2),
+        ("Ability1", "Flashpoint", 200, 1, 3),  # druhý náboj Flashpoint
     ],
 }
+
+
+def ability_names(agent):
+    names = []
+    for _, name, cost, _, _ in ABILITIES.get(agent, []):
+        if name not in [n for n, _ in names]:
+            names.append((name, cost))
+    return names
+
+
+def set_ability_cost(agent, name, cost):
+    ABILITIES[agent] = [(slot, n, cost if n == name else c, charges, priority)
+                        for slot, n, c, charges, priority in ABILITIES[agent]]
+
+
 SLOT_KEY = {"Grenade": "C", "Ability1": "Q", "Ability2": "E", "Ultimate": "X"}
 
 # Záložné ceny (prepíšu sa cenami z API) a kategória zbrane #

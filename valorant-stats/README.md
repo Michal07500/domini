@@ -46,7 +46,12 @@ Kým je dát málo, drží sa bežných odporúčaní. Čím viac zápasov odohr
 
 ## Ikony a ceny
 Ikony agentov, zbraní, štítov a schopností aj aktuálne ceny zbraní sa sťahujú z verejného [valorant-api.com](https://valorant-api.com) a ukladajú do `cache/`, takže potom fungujú aj offline.
-**Ceny schopností** API neposkytuje, sú v `udaje.py` (Reyna: Leer 250, Devour/Dismiss 100; Breach: Flashpoint 250, Aftershock 200). Ak ich Riot zmení, uprav ich tam.
+**Ceny schopností** API neposkytuje. Predvolené sú Reyna: Leer 250, Devour 200, Dismiss 200; Breach: Flashpoint 200, Aftershock 100.
+Ak ich Riot zmení, oprav ich v programe v **Nastavenia → Ceny schopností** (uloží sa to), alebo natrvalo v `udaje.py`.
+
+## Vyhľadávanie
+Do každého výberového poľa (agenti, mapa, zbrane, štíty) môžeš písať. Stačí začiatok mena, napríklad `je` → Jett, `va` → Vandal, `ph` → Phantom.
+Zvyšok mena sa doplní sám, Enter alebo Tab ho potvrdí. Funguje aj kus zo stredu mena (`ant` → Phantom).
 
 ## OCR – automatické čítanie kreditov (experimentálne)
 Dá sa to spraviť. Program si každé 2 sekundy odfotí malý výrez obrazovky, kde hra ukazuje kredity, a prečíta z neho číslo.

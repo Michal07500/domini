@@ -79,6 +79,74 @@ def label(parent, text="", size=10, color=TEXT, bold=False, bg=PANEL, **kw):
                     justify="left", **kw)
 
 
+class SearchCombo(ttk.Combobox):
+    """Výberové pole, do ktorého sa dá písať – stačí začiatok mena (napr. "va" -> Vandal)."""
+
+    def __init__(self, master, values=(), **kw):
+        kw.pop("state", None)
+        super().__init__(master, **kw)
+        self.all_values = list(values)
+        self["values"] = self.all_values
+        self.valid = self.get()
+        self.bind("<KeyRelease>", self._on_key, add=True)
+        self.bind("<Return>", self._accept, add=True)
+        self.bind("<FocusOut>", self._accept, add=True)
+        self.bind("<FocusIn>", lambda e: self.select_range(0, "end"), add=True)
+        self.bind("<<ComboboxSelected>>", self._picked, add=True)
+
+    def set_values(self, values):
+        self.all_values = list(values)
+        self["values"] = self.all_values
+
+    def matches(self, text):
+        text = text.strip().lower()
+        if not text:
+            return list(self.all_values)
+        found = [v for v in self.all_values if v.lower().startswith(text)]
+        return found or [v for v in self.all_values if text in v.lower()]
+
+    def _on_key(self, event):
+        if event.keysym in ("Return", "KP_Enter", "Tab", "Escape", "Up", "Down", "Left", "Right", "Home", "End") \
+                or event.keysym.startswith(("Shift", "Control", "Alt")):
+            return
+        typed = self.get()[:self.index("insert")]
+        found = self.matches(typed)
+        self["values"] = found or self.all_values
+        if event.keysym in ("BackSpace", "Delete") or not typed.strip():
+            return
+        if found and found[0].lower().startswith(typed.lower()):
+            # doplní zvyšok mena a označí ho – ďalšie písmeno ho prepíše #
+            self.delete(0, "end")
+            self.insert(0, found[0])
+            self.icursor(len(typed))
+            self.select_range(len(typed), "end")
+
+    def _picked(self, event=None):
+        self.valid = self.get()
+        self["values"] = self.all_values
+
+    def _accept(self, event=None):
+        text = self.get().strip()
+        if text in self.all_values:
+            value = text
+        elif not text and "" in self.all_values:
+            value = ""
+        else:
+            found = self.matches(text)
+            value = found[0] if found and text else self.valid
+        self.selection_clear()
+        self["values"] = self.all_values
+        if value != self.get():
+            self.set(value)
+        if value != self.valid:
+            self.valid = value
+            self.event_generate("<<ComboboxSelected>>")
+
+
+WEAPON_LIST = sorted(U.WEAPON_VALUE, key=lambda w: -U.WEAPON_VALUE[w])
+SHIELD_LIST = [v[0] for v in U.SHIELDS.values()]
+
+
 class App:
     def __init__(self):
         enable_dpi_awareness()
@@ -90,6 +158,10 @@ class App:
         self.root.minsize(1000, 680)
         self.style()
 
+        for key, cost in self.settings.get("ability_costs", {}).items():
+            agent, name = key.split("|")
+            if agent in U.ABILITIES:
+                U.set_ability_cost(agent, name, int(cost))
         self.history = S.load_history()
         self.profile = L.Profile(self.history)
         self.prices = L.default_prices()
@@ -128,7 +200,9 @@ class App:
         s.map("TNotebook.Tab", background=[("selected", RED)], foreground=[("selected", TEXT)])
         s.configure("TCombobox", fieldbackground=PANEL2, background=PANEL2, foreground=TEXT, arrowcolor=TEXT,
                     selectbackground=PANEL2, selectforeground=TEXT, padding=4)
-        s.map("TCombobox", fieldbackground=[("readonly", PANEL2)], foreground=[("readonly", TEXT)])
+        s.map("TCombobox", fieldbackground=[("readonly", PANEL2), ("!disabled", PANEL2)],
+              foreground=[("readonly", TEXT), ("!disabled", TEXT)])
+        s.configure("TCombobox", insertcolor=TEXT)
         s.configure("TSpinbox", fieldbackground=PANEL2, foreground=TEXT, arrowcolor=TEXT, padding=4)
         s.configure("Treeview", background=PANEL, fieldbackground=PANEL, foreground=TEXT, rowheight=26,
                     borderwidth=0)
@@ -190,11 +264,11 @@ class App:
         row.pack(fill="x", pady=2)
         label(row, "Mapa", 10, MUTED, width=12, anchor="w").pack(side="left")
         self.map_var = tk.StringVar(value="Neviem")
-        box = ttk.Combobox(row, textvariable=self.map_var, values=list(U.MAPS), state="readonly", width=18)
+        box = self.map_box = SearchCombo(row, textvariable=self.map_var, values=list(U.MAPS), width=18)
         box.pack(side="left")
         box.bind("<<ComboboxSelected>>", lambda e: self.recommend_agent())
 
-        label(body, "Agenti spoluhráčov (vyplň, koho poznáš):", 10, MUTED).pack(anchor="w", pady=(10, 4))
+        label(body, "Agenti spoluhráčov (napíš začiatok mena, napr. \"je\" = Jett):", 10, MUTED).pack(anchor="w", pady=(10, 4))
         self.mate_vars, self.mate_icons, self.mate_boxes = [], [], []
         for i in range(4):
             row = tk.Frame(body, bg=PANEL)
@@ -202,7 +276,7 @@ class App:
             icon = tk.Label(row, bg=PANEL, width=4)
             icon.pack(side="left")
             var = tk.StringVar()
-            combo = ttk.Combobox(row, textvariable=var, state="readonly", width=20)
+            combo = SearchCombo(row, textvariable=var, width=20)
             combo.pack(side="left", padx=6)
             combo.bind("<<ComboboxSelected>>", lambda e: self.recommend_agent())
             role = label(row, "", 9, MUTED)
@@ -259,17 +333,16 @@ class App:
         kept = tk.Frame(form, bg=PANEL)
         kept.grid(row=3, column=1, columnspan=3, sticky="w")
         self.kept_weapon_var = tk.StringVar(value="nič")
-        self.kept_weapon_box = ttk.Combobox(kept, textvariable=self.kept_weapon_var, state="readonly", width=12,
-                                            values=["nič"] + sorted(U.WEAPON_VALUE, key=lambda w: -U.WEAPON_VALUE[w]))
+        self.kept_weapon_box = SearchCombo(kept, textvariable=self.kept_weapon_var, width=12,
+                                           values=["nič"] + WEAPON_LIST)
         self.kept_weapon_box.pack(side="left")
         self.kept_shield_var = tk.StringVar(value="Bez štítu")
-        ttk.Combobox(kept, textvariable=self.kept_shield_var, state="readonly", width=14,
-                     values=[v[0] for v in U.SHIELDS.values()]).pack(side="left", padx=6)
+        SearchCombo(kept, textvariable=self.kept_shield_var, width=14, values=SHIELD_LIST).pack(side="left", padx=6)
         label(kept, "(ak si prežil)", 8, MUTED).pack(side="left")
 
         label(form, "Plán tímu", 10, MUTED, width=16, anchor="w").grid(row=4, column=0, sticky="w", pady=3)
         self.plan_var = tk.StringVar(value="Neviem")
-        ttk.Combobox(form, textvariable=self.plan_var, values=U.TEAM_PLANS, state="readonly", width=16).grid(
+        SearchCombo(form, textvariable=self.plan_var, values=U.TEAM_PLANS, width=16).grid(
             row=4, column=1, sticky="w")
 
         actions = tk.Frame(body, bg=PANEL)
@@ -295,7 +368,7 @@ class App:
         roles = self.icons.roles()
         names = [""] + sorted(roles)
         for combo in self.mate_boxes:
-            combo["values"] = names
+            combo.set_values(names)
 
     def refresh_mate_icons(self):
         roles = self.icons.roles()
@@ -508,11 +581,9 @@ class App:
         button(confirm, "✔ Kúpil som to", lambda: self.confirm_buy(buy.weapon, buy.shield), GREEN, BG).pack(side="left")
         label(confirm, "  alebo som kúpil:", 9, MUTED, bg=PANEL2).pack(side="left")
         other_weapon = tk.StringVar(value=buy.weapon)
-        ttk.Combobox(confirm, textvariable=other_weapon, state="readonly", width=10,
-                     values=sorted(U.WEAPON_VALUE, key=lambda w: -U.WEAPON_VALUE[w])).pack(side="left", padx=4)
+        SearchCombo(confirm, textvariable=other_weapon, width=10, values=WEAPON_LIST).pack(side="left", padx=4)
         other_shield = tk.StringVar(value=U.SHIELDS[buy.shield][0])
-        ttk.Combobox(confirm, textvariable=other_shield, state="readonly", width=13,
-                     values=[v[0] for v in U.SHIELDS.values()]).pack(side="left", padx=4)
+        SearchCombo(confirm, textvariable=other_shield, width=13, values=SHIELD_LIST).pack(side="left", padx=4)
         button(confirm, "Uložiť", lambda: self.confirm_buy(
             other_weapon.get(), next(k for k, v in U.SHIELDS.items() if v[0] == other_shield.get())),
             PANEL, TEXT).pack(side="left", padx=4)
@@ -848,14 +919,39 @@ class App:
         self.ocr_status.pack(anchor="w")
         self.update_ocr_status()
 
+        frame, body = card(t, "Ceny schopností")
+        frame.pack(fill="x", padx=8, pady=8)
+        label(body, "Ak Riot zmení ceny, oprav ich tu – uloží sa to a odporúčania to hneď použijú.", 9, MUTED).pack(anchor="w")
+        for agent in U.MY_AGENTS:
+            row = tk.Frame(body, bg=PANEL)
+            row.pack(fill="x", pady=3)
+            label(row, agent, 10, TEXT, True, width=10, anchor="w").pack(side="left")
+            for name, cost in U.ability_names(agent):
+                label(row, name, 10, MUTED).pack(side="left", padx=(12, 4))
+                var = tk.StringVar(value=str(cost))
+                box = ttk.Spinbox(row, from_=0, to=1000, increment=50, textvariable=var, width=5,
+                                  command=lambda a=agent, n=name, v=var: self.set_ability_cost(a, n, v))
+                box.pack(side="left")
+                box.bind("<FocusOut>", lambda e, a=agent, n=name, v=var: self.set_ability_cost(a, n, v))
+                box.bind("<Return>", lambda e, a=agent, n=name, v=var: self.set_ability_cost(a, n, v))
+
         frame, body = card(t, "Údaje")
         frame.pack(fill="x", padx=8, pady=8)
         label(body, f"História a nastavenia sú v priečinku: {S.FOLDER}", 9, MUTED).pack(anchor="w")
-        label(body, "Ceny schopností (Reyna, Breach) sú v súbore udaje.py – ak ich Riot zmení, uprav ich tam.", 9,
-              MUTED).pack(anchor="w")
         row = tk.Frame(body, bg=PANEL)
         row.pack(fill="x", pady=6)
         button(row, "Otvoriť priečinok s dátami", self.open_data_folder, PANEL2).pack(side="left")
+
+    def set_ability_cost(self, agent, name, var):
+        try:
+            cost = int(float(var.get()))
+        except ValueError:
+            return
+        U.set_ability_cost(agent, name, cost)
+        self.settings.setdefault("ability_costs", {})[f"{agent}|{name}"] = cost
+        self.save_settings()
+        if self.buy:
+            self.recommend_buy()
 
     def set_alpha(self, value):
         self.settings["overlay_alpha"] = round(value, 2)
