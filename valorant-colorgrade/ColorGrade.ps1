@@ -28,6 +28,8 @@ public static class NvVibrance
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate int EnumDisplayFn(int index, out IntPtr handle);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate int GetDvcFn(IntPtr handle, uint outputId, ref DvcInfo info);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate int SetDvcFn(IntPtr handle, uint outputId, int level);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate int OutputIdFn(IntPtr handle, out uint outputId);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate int DisplayNameFn(IntPtr handle, [MarshalAs(UnmanagedType.LPArray, SizeConst = 64)] byte[] name);
 
     [StructLayout(LayoutKind.Sequential)]
     struct DvcInfo { public uint version; public int current; public int min; public int max; }
@@ -36,6 +38,8 @@ public static class NvVibrance
     static GetDvcFn getDvc;
     static SetDvcFn setDvc;
     static readonly List<IntPtr> displays = new List<IntPtr>();
+    static readonly List<uint> outputs = new List<uint>();
+    static readonly List<string> names = new List<string>();
 
     public static bool Available { get; private set; }
 
@@ -55,11 +59,21 @@ public static class NvVibrance
             getDvc = Fn<GetDvcFn>(0x4085DE45);
             setDvc = Fn<SetDvcFn>(0x172409B4);
             if (init == null || enumDisplay == null || getDvc == null || setDvc == null || init() != 0) return;
+            OutputIdFn outputId = Fn<OutputIdFn>(0xD995937E);
+            DisplayNameFn displayName = Fn<DisplayNameFn>(0x22A78B05);
             for (int i = 0; i < 16; i++)
             {
                 IntPtr h;
                 if (enumDisplay(i, out h) != 0) break;
+                // Kazdy monitor ma na karte vlastny vystup - vibrance musi ist presne nan.
+                uint id = 0;
+                if (outputId == null || outputId(h, out id) != 0) id = 0;
+                byte[] buf = new byte[64];
+                string name = "NVIDIA displej " + (i + 1);
+                if (displayName != null && displayName(h, buf) == 0) name = Encoding.ASCII.GetString(buf).TrimEnd('\0');
                 displays.Add(h);
+                outputs.Add(id);
+                names.Add(name);
             }
             Available = displays.Count > 0;
         }
@@ -70,7 +84,7 @@ public static class NvVibrance
     {
         DvcInfo info = new DvcInfo();
         info.version = (uint)Marshal.SizeOf(typeof(DvcInfo)) | (1u << 16);
-        getDvc(h, 0, ref info);
+        getDvc(h, outputs[displays.IndexOf(h)], ref info);
         return info;
     }
 
@@ -83,18 +97,22 @@ public static class NvVibrance
 
     public static void SetLevels(int[] levels)
     {
-        for (int i = 0; i < displays.Count && i < levels.Length; i++) setDvc(displays[i], 0, levels[i]);
+        for (int i = 0; i < displays.Count && i < levels.Length; i++) setDvc(displays[i], outputs[i], levels[i]);
     }
 
     // percent = to iste cislo ako "Digital Vibrance" v NVIDIA Control Panel (50 = default, 100 = max)
-    public static void SetPercent(int percent)
+    // vrati pre kazdy monitor "nazov: OK / chyba"
+    public static List<string> SetPercent(int percent)
     {
-        foreach (IntPtr h in displays)
+        List<string> result = new List<string>();
+        for (int i = 0; i < displays.Count; i++)
         {
-            DvcInfo info = Info(h);
+            DvcInfo info = Info(displays[i]);
             int level = (int)Math.Round((Math.Max(50, Math.Min(100, percent)) - 50) / 50.0 * info.max);
-            setDvc(h, 0, level);
+            int err = setDvc(displays[i], outputs[i], level);
+            result.Add(names[i] + ": vibrance " + (err == 0 ? "OK" : "CHYBA " + err));
         }
+        return result;
     }
 }
 
@@ -282,7 +300,7 @@ public class ColorGradeForm : Form
         BackColor = Color.FromArgb(15, 25, 35);
         ForeColor = Color.White;
         Font = new Font("Segoe UI", 10f);
-        ClientSize = new Size(380, 330);
+        ClientSize = new Size(380, 370);
 
         Label title = new Label();
         title.Text = "COLOR GRADE: ZAPNUTÝ";
@@ -293,12 +311,12 @@ public class ColorGradeForm : Form
         Controls.Add(title);
 
         status.AutoSize = false;
-        status.Size = new Size(350, 40);
+        status.Size = new Size(350, 80);
         status.Location = new Point(16, 46);
         status.ForeColor = Color.FromArgb(170, 180, 190);
         Controls.Add(status);
 
-        int y = 92;
+        int y = 132;
         AddSlider("Vibrance (NVIDIA %)", 50, 100, settings.Vibrance, ref y, delegate(int v) { settings.Vibrance = v; }, NvVibrance.Available);
         AddSlider("Kontrast %", 100, 140, settings.Contrast, ref y, delegate(int v) { settings.Contrast = v; }, true);
         AddSlider("Gamma (x100)", 70, 130, settings.Gamma, ref y, delegate(int v) { settings.Gamma = v; }, true);
@@ -351,19 +369,18 @@ public class ColorGradeForm : Form
 
     void Apply()
     {
-        string msg = "";
+        List<string> lines = new List<string>();
         if (NvVibrance.Available)
         {
-            try { NvVibrance.SetPercent(settings.Vibrance); msg += "Vibrance OK. "; }
-            catch (Exception) { msg += "Vibrance zlyhala. "; }
+            try { lines.AddRange(NvVibrance.SetPercent(settings.Vibrance)); }
+            catch (Exception e) { lines.Add("Vibrance zlyhala: " + e.Message); }
         }
-        else msg += "NVIDIA nenájdená – vibrance nejde (len kontrast/gamma). ";
+        else lines.Add("NVIDIA nenájdená – vibrance nejde.");
 
         ushort[] ramp = Gamma.Build(settings.Contrast / 100.0, settings.Gamma / 100.0, settings.Brightness / 100.0);
-        bool ok = true;
-        foreach (string m in Gamma.Monitors()) ok &= Gamma.Set(m, ramp);
-        msg += ok ? "Kontrast/gamma OK." : "Windows odmietol takú silnú krivku – zníž kontrast/gammu.";
-        status.Text = msg;
+        foreach (string m in Gamma.Monitors())
+            lines.Add(m + ": kontrast " + (Gamma.Set(m, ramp) ? "OK" : "ODMIETNUTÝ"));
+        status.Text = string.Join("\n", lines.ToArray());
     }
 
     void RestoreOnce()
