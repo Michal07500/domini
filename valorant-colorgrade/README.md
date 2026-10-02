@@ -11,6 +11,16 @@ Malý program pre Windows: **kým je spustený, hra (aj celá obrazovka) má far
 
 Netreba nič inštalovať, používa iba PowerShell, ktorý je vo Windows.
 
+## Automaticky pri spustení Valorantu
+
+1. Dvojklik na **`Zapnut automaticky.bat`** (iba raz).
+2. Odteraz sa program pri každom zapnutí PC potichu spustí ako ikonka v lište pri hodinách (možno pod šípkou ^).
+3. Keď spustíš Valorant, farby sa zapnú samé. Keď hru vypneš, vrátia sa späť.
+
+- **Nastavenia farieb:** dvojklik na ikonku (alebo pravé tlačidlo → Nastavenia farieb). Kým je okno otvorené, farby vidíš aj bez hry, takže ich môžeš doladiť.
+- **Vypnúť:** pravé tlačidlo na ikonku → Ukončiť. Aby sa už nespúšťal pri štarte PC, daj dvojklik na **`Vypnut automaticky.bat`**.
+- Priečinok po zapnutí automatiky nepresúvaj, inak automatika prestane fungovať. Ak ho presunieš, spusti `Zapnut automaticky.bat` znova.
+
 ## Čo program mení
 
 | Posuvník | Čo robí | Predvolené |

@@ -3,6 +3,9 @@
 # Ked okno zavries -> vsetko sa vrati presne tak, ako to bolo predtym.
 #
 # Spustaj cez "Spustit ColorGrade.bat" (dvojklik).
+# Automaticky pri Valorante: "Zapnut automaticky.bat".
+
+param([switch]$Auto)   # -Auto = cakaj na Valorant v liste pri hodinach
 
 $ErrorActionPreference = 'Stop'
 
@@ -283,16 +286,54 @@ public static class Backup
     }
 }
 
-// ---------------------------------------------------------------- Okno
+// ---------------------------------------------------------------- Zapnutie / vypnutie farieb
+public static class Grader
+{
+    public static Settings Settings = Settings.Load();
+    public static bool Active { get; private set; }
+
+    public static void Start()
+    {
+        if (Active) return;
+        Backup.Capture();          // zapamatat si povodne farby
+        Active = true;
+    }
+
+    public static void Stop()
+    {
+        if (!Active) return;
+        Active = false;
+        Backup.Restore();          // vratit povodne farby
+    }
+
+    // nastavi farby, vrati stav pre kazdy monitor
+    public static string Apply()
+    {
+        if (!Active) return "";
+        List<string> lines = new List<string>();
+        if (NvVibrance.Available)
+        {
+            try { lines.AddRange(NvVibrance.SetPercent(Settings.Vibrance)); }
+            catch (Exception e) { lines.Add("Vibrance zlyhala: " + e.Message); }
+        }
+        else lines.Add("NVIDIA nenájdená – vibrance nejde.");
+
+        ushort[] ramp = Gamma.Build(Settings.Contrast / 100.0, Settings.Gamma / 100.0, Settings.Brightness / 100.0);
+        foreach (string m in Gamma.Monitors())
+            lines.Add(m + ": kontrast " + (Gamma.Set(m, ramp) ? "OK" : "ODMIETNUTÝ"));
+        return string.Join("\n", lines.ToArray());
+    }
+}
+
+// ---------------------------------------------------------------- Okno s posuvnikmi
 public class ColorGradeForm : Form
 {
-    Settings settings = Settings.Load();
     Label status = new Label();
-    Timer reapply = new Timer();
-    bool restored;
+    Timer refresh = new Timer();
 
-    public ColorGradeForm()
+    public ColorGradeForm(bool auto)
     {
+        Settings settings = Grader.Settings;
         Text = "Valorant Color Grade";
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
@@ -323,21 +364,20 @@ public class ColorGradeForm : Form
         AddSlider("Jas", -10, 10, settings.Brightness, ref y, delegate(int v) { settings.Brightness = v; }, true);
 
         Label hint = new Label();
-        hint.Text = "Zavri toto okno = farby sa vrátia naspäť.";
-        hint.AutoSize = true;
+        hint.Text = auto
+            ? "Náhľad. Po zavretí okna sa farby zapnú, len keď beží Valorant."
+            : "Zavri toto okno = farby sa vrátia naspäť.";
+        hint.AutoSize = false;
+        hint.Size = new Size(350, 40);
         hint.ForeColor = Color.FromArgb(170, 180, 190);
         hint.Location = new Point(16, y + 4);
         Controls.Add(hint);
 
         // Hry (aj Valorant vo fullscreene) obcas gamma resetnu -> kazde 2 s ju nastavime znova.
-        reapply.Interval = 2000;
-        reapply.Tick += delegate { Apply(); };
-
-        Load += delegate { Apply(); reapply.Start(); };
-        FormClosing += delegate { RestoreOnce(); };
-        Application.ApplicationExit += delegate { RestoreOnce(); };
-        Microsoft.Win32.SystemEvents.SessionEnding += delegate { RestoreOnce(); };
-        AppDomain.CurrentDomain.UnhandledException += delegate { RestoreOnce(); };
+        refresh.Interval = 2000;
+        refresh.Tick += delegate { status.Text = Grader.Apply(); };
+        Load += delegate { Grader.Start(); status.Text = Grader.Apply(); refresh.Start(); };
+        FormClosed += delegate { refresh.Stop(); };
     }
 
     void AddSlider(string name, int min, int max, int value, ref int y, Action<int> set, bool enabled)
@@ -361,53 +401,110 @@ public class ColorGradeForm : Form
         {
             set(bar.Value);
             label.Text = name + ": " + bar.Value;
-            settings.Save();
-            Apply();
+            Grader.Settings.Save();
+            status.Text = Grader.Apply();
         };
         y += 46;
     }
+}
 
-    void Apply()
+// ---------------------------------------------------------------- Automaticky rezim (ikonka v liste pri hodinach)
+public class AutoWatcher : ApplicationContext
+{
+    const string GameProcess = "VALORANT-Win64-Shipping"; // samotna hra (nie launcher)
+
+    NotifyIcon icon = new NotifyIcon();
+    Timer check = new Timer();
+    ColorGradeForm settingsForm;
+
+    public AutoWatcher()
     {
-        List<string> lines = new List<string>();
-        if (NvVibrance.Available)
-        {
-            try { lines.AddRange(NvVibrance.SetPercent(settings.Vibrance)); }
-            catch (Exception e) { lines.Add("Vibrance zlyhala: " + e.Message); }
-        }
-        else lines.Add("NVIDIA nenájdená – vibrance nejde.");
+        ContextMenuStrip menu = new ContextMenuStrip();
+        menu.Items.Add("Nastavenia farieb", null, delegate { OpenSettings(); });
+        menu.Items.Add("Ukončiť", null, delegate { ExitThread(); });
 
-        ushort[] ramp = Gamma.Build(settings.Contrast / 100.0, settings.Gamma / 100.0, settings.Brightness / 100.0);
-        foreach (string m in Gamma.Monitors())
-            lines.Add(m + ": kontrast " + (Gamma.Set(m, ramp) ? "OK" : "ODMIETNUTÝ"));
-        status.Text = string.Join("\n", lines.ToArray());
+        icon.Icon = SystemIcons.Application;
+        icon.ContextMenuStrip = menu;
+        icon.DoubleClick += delegate { OpenSettings(); };
+        icon.Visible = true;
+
+        check.Interval = 2000;
+        check.Tick += delegate { Tick(); };
+        check.Start();
+        Tick();
     }
 
-    void RestoreOnce()
+    static bool GameRunning()
     {
-        if (restored) return;
-        restored = true;
-        reapply.Stop();
-        Backup.Restore();
+        System.Diagnostics.Process[] p = System.Diagnostics.Process.GetProcessesByName(GameProcess);
+        foreach (System.Diagnostics.Process x in p) x.Dispose();
+        return p.Length > 0;
+    }
+
+    void Tick()
+    {
+        bool game = GameRunning();
+        bool wanted = game || settingsForm != null;
+        if (wanted && !Grader.Active) Grader.Start();
+        if (!wanted && Grader.Active) Grader.Stop();
+        if (Grader.Active) Grader.Apply();
+        icon.Text = game ? "Color Grade: ZAPNUTÝ (Valorant beží)" : "Color Grade: čaká na Valorant";
+    }
+
+    void OpenSettings()
+    {
+        if (settingsForm != null) { settingsForm.Activate(); return; }
+        settingsForm = new ColorGradeForm(true);
+        settingsForm.FormClosed += delegate { settingsForm = null; Tick(); };
+        settingsForm.Show();
+    }
+
+    protected override void ExitThreadCore()
+    {
+        check.Stop();
+        if (settingsForm != null) settingsForm.Close();
+        icon.Visible = false;
+        icon.Dispose();
+        Grader.Stop();
+        base.ExitThreadCore();
     }
 }
 
 public static class App
 {
-    public static void Run()
+    public static void Run(bool auto)
     {
+        bool first;
+        System.Threading.Mutex single = new System.Threading.Mutex(true, "ValorantColorGrade_SingleInstance", out first);
+        if (!first)
+        {
+            MessageBox.Show("Color Grade už beží (pozri ikonku v lište pri hodinách).", "Valorant Color Grade");
+            return;
+        }
+
         NvVibrance.Init();
 
         // Ak minule program spadol, najprv vratime povodne farby z disku.
         if (Backup.LoadLeftover()) Backup.Restore();
-        Backup.Capture();
+
+        Application.ApplicationExit += delegate { Grader.Stop(); };
+        Microsoft.Win32.SystemEvents.SessionEnding += delegate { Grader.Stop(); };
+        AppDomain.CurrentDomain.UnhandledException += delegate { Grader.Stop(); };
 
         Application.EnableVisualStyles();
-        try { Application.Run(new ColorGradeForm()); }
-        finally { Backup.Restore(); }
+        try
+        {
+            if (auto) Application.Run(new AutoWatcher());
+            else Application.Run(new ColorGradeForm(false));
+        }
+        finally
+        {
+            Grader.Stop();
+            GC.KeepAlive(single);
+        }
     }
 }
 '@
 
 Add-Type -TypeDefinition $source -ReferencedAssemblies System.Windows.Forms, System.Drawing
-[App]::Run()
+[App]::Run($Auto.IsPresent)
